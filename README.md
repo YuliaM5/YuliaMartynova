@@ -57,6 +57,6 @@ python main.py
 
 ## 👤 Автор
 
-+ GitHub: @YuliaM5
+GitHub: @YuliaM5
 
-+ Email: martynova-yv@bk.ru
+Email: martynova-yv@bk.ru
