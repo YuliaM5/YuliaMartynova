@@ -8,7 +8,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 load_dotenv()
 
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
 if not TOKEN:
     raise ValueError("Токен бота не найден! Проверьте файл .env")
