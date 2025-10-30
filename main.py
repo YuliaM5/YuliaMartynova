@@ -4,10 +4,11 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
 
 
+
 TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
 if not TOKEN:
-    raise ValueError("Токен бота не найден! Проверьте файл .env")
+    exit(1)
 
 QUESTION_1, QUESTION_2, QUESTION_3, QUESTION_4, QUESTION_5, QUESTION_6, QUESTION_7, QUESTION_8 = range(8)
 
@@ -21,7 +22,6 @@ questions = [
     "Что вас вдохновляет?",
     "Какой вы в критической ситуации?"
 ]
-
 answers = [
     # Вопрос 1: Какой у вас характер?
     [["Энергичный и весёлый"], ["Спокойный и рассудительный"], ["Мечтательный и творческий"], ["Практичный и деловой"], ["Мудрый и философский"]],
@@ -47,6 +47,7 @@ answers = [
     # Вопрос 8: Какой вы в критической ситуации?
     [["Действую быстро и решительно"], ["Сохраняю хладнокровие"], ["Впадаю в раздумья"], ["Ищу практичное решение"], ["Дам мудрый совет"]]
 ]
+
 
 characters = {
     "Крош": {
@@ -98,7 +99,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def handle_question_1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
-    answer_index = answers[0].index([user_answer])  # Ищем в списке списков
+    answer_index = answers[0].index([user_answer])
     context.user_data['answers'] = [answer_index]
     await update.message.reply_text(
         f"📝 Вопрос 2: {questions[1]}",
@@ -187,60 +188,29 @@ async def handle_question_8(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     )
     return ConversationHandler.END
 
-
 def calculate_result(answers):
-    # Словарь для подсчета очков каждого персонажа
     scores = {
-        "Крош": 0,
-        "Ёжик": 0,
-        "Бараш": 0,
-        "Пин": 0,
-        "Лосяш": 0,
-        "Кар-Карыч": 0,
-        "Совунья": 0,
-        "Нюша": 0,
-        "Копатыч": 0
+        "Крош": 0, "Ёжик": 0, "Бараш": 0, "Пин": 0, "Лосяш": 0,
+        "Кар-Карыч": 0, "Совунья": 0, "Нюша": 0, "Копатыч": 0
     }
 
-    # Для каждого вопроса определяем, какие ответы подходят каким персонажам
     question_weights = [
-        # Вопрос 1: Какой у вас характер?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [1], "Нюша": [2], "Копатыч": [3]},
-
-        # Вопрос 2: Что вы любите делать в свободное время?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [3], "Нюша": [0], "Копатыч": [3]},
-
-        # Вопрос 3: Как вы относитесь к приключениям?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [1], "Совунья": [1], "Нюша": [2], "Копатыч": [1]},
-
-        # Вопрос 4: Что для вас самое важное в жизни?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [1], "Кар-Карыч": [4], "Совунья": [4], "Нюша": [2], "Копатыч": [3]},
-
-        # Вопрос 5: Как вы общаетесь с друзьями?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [1], "Кар-Карыч": [4], "Совунья": [3], "Нюша": [0], "Копатыч": [4]},
-
-        # Вопрос 6: Как вы решаете проблемы?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [1], "Нюша": [2], "Копатыч": [3]},
-
-        # Вопрос 7: Что вас вдохновляет?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [1], "Кар-Карыч": [4], "Совунья": [4], "Нюша": [0], "Копатыч": [4]},
-
-        # Вопрос 8: Какой вы в критической ситуации?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [1], "Нюша": [2], "Копатыч": [3]}
     ]
 
-    # Подсчитываем очки
     for i, answer_index in enumerate(answers):
         for character, preferred_answers in question_weights[i].items():
             if answer_index in preferred_answers:
                 scores[character] += 1
 
-    print(f"Debug: scores = {scores}")
-
-    # Находим персонажа с максимальным количеством очков
-    result = max(scores, key=scores.get)
-    return result
-
+    return max(scores, key=scores.get)
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
@@ -261,15 +231,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def list_characters(update: Update, context: ContextTypes.DEFAULT_TYPE):
     characters_list = [
-        "🐰 Крош - энергичный заяц",
-        "🦔 Ёжик - умный друг",
-        "🐑 Бараш - творческий поэт",
-        "🐧 Пин - изобретательный пингвин",
-        "🦌 Лосяш - учёный философ",
-        "🐦 Кар-Карыч - мудрый ворон",
-        "🦉 Совунья - заботливая сова",
-        "🐷 Нюша - романтичная модница",
-        "🐻 Копатыч - трудолюбивый медведь"
+        "🐰 Крош - энергичный заяц", "🦔 Ёжик - умный друг", "🐑 Бараш - творческий поэт",
+        "🐧 Пин - изобретательный пингвин", "🦌 Лосяш - учёный философ", "🐦 Кар-Карыч - мудрый ворон",
+        "🦉 Совунья - заботливая сова", "🐷 Нюша - романтичная модница", "🐻 Копатыч - трудолюбивый медведь"
     ]
 
     await update.message.reply_text(
@@ -277,41 +241,35 @@ async def list_characters(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "\n\n✨ Напишите /start чтобы узнать кто вы!"
     )
 
-def run_bot():
+def main():
     try:
-        print("⏳ Бот запускается...")
-
-
         application = Application.builder().token(TOKEN).build()
 
         conv_handler = ConversationHandler(
-          entry_points=[CommandHandler('start', start)],
-          states={
-              QUESTION_1: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_1)],
-              QUESTION_2: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_2)],
-              QUESTION_3: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_3)],
-              QUESTION_4: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_4)],
-              QUESTION_5: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_5)],
-              QUESTION_6: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_6)],
-              QUESTION_7: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_7)],
-              QUESTION_8: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_8)],
-          },
-          fallbacks=[CommandHandler('cancel', cancel)]
-      )
+            entry_points=[CommandHandler('start', start)],
+            states={
+                QUESTION_1: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_1)],
+                QUESTION_2: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_2)],
+                QUESTION_3: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_3)],
+                QUESTION_4: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_4)],
+                QUESTION_5: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_5)],
+                QUESTION_6: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_6)],
+                QUESTION_7: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_7)],
+                QUESTION_8: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_8)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)]
+        )
 
         application.add_handler(conv_handler)
         application.add_handler(CommandHandler("help", help_command))
         application.add_handler(CommandHandler("characters", list_characters))
 
-        print("✅ Бот запущен и работает!")
-        print("🎭 Теперь доступно 9 Смешариков!")
-        print("📱 Тестируйте бота в Telegram")
-        print("⏹️  Чтобы остановить, прервите выполнение ячейки")
-
         application.run_polling()
 
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
+       
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
-    run_bot()
+    main()
