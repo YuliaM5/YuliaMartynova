@@ -55,6 +55,15 @@ venv\Scripts\activate     # Windows
 python main.py
 ```
 
+## Проверка
+
+Пишите в бот в телеграм
+
+@testik_smesharik_666_bot
+
+Команда /start
+
+
 ## 👤 Автор
 
 GitHub: @YuliaM5
