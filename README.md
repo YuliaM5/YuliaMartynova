@@ -33,7 +33,7 @@ venv\Scripts\activate     # Windows
 # Установка зависимостей
 pip install -r requirements.txt
 
-```bash
+bash```
 
 ## 🚀 Запуск бота
 
@@ -53,7 +53,7 @@ venv\Scripts\activate     # Windows
 
 ```bash
 python main.py
-```bash
+bash```
 
 ## 👤 Автор
 
