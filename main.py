@@ -1,8 +1,7 @@
 import os
 
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (Updater, CommandHandler, MessageHandler, 
-                         Filters, CallbackContext, ConversationHandler)
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
 
 
 TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
@@ -88,8 +87,8 @@ characters = {
     }
 }
 
-def start(update: Update, context: CallbackContext) -> int:
-    update.message.reply_text(
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text(
         "Привет! Давай узнаем, кто ты из Смешариков! 🎭\n"
         "Ответь на 8 простых вопросов и узнай результат!\n\n"
         f"📝 Вопрос 1: {questions[0]}",
@@ -97,77 +96,77 @@ def start(update: Update, context: CallbackContext) -> int:
     )
     return QUESTION_1
 
-def handle_question_1(update: Update, context: CallbackContext) -> int:
+async def handle_question_1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
-    answer_index = answers[0].index([user_answer])
+    answer_index = answers[0].index([user_answer])  # Ищем в списке списков
     context.user_data['answers'] = [answer_index]
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 2: {questions[1]}",
         reply_markup=ReplyKeyboardMarkup(answers[1], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_2
 
-def handle_question_2(update: Update, context: CallbackContext) -> int:
+async def handle_question_2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[1].index([user_answer])
     context.user_data['answers'].append(answer_index)
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 3: {questions[2]}",
         reply_markup=ReplyKeyboardMarkup(answers[2], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_3
 
-def handle_question_3(update: Update, context: CallbackContext) -> int:
+async def handle_question_3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[2].index([user_answer])
     context.user_data['answers'].append(answer_index)
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 4: {questions[3]}",
         reply_markup=ReplyKeyboardMarkup(answers[3], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_4
 
-def handle_question_4(update: Update, context: CallbackContext) -> int:
+async def handle_question_4(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[3].index([user_answer])
     context.user_data['answers'].append(answer_index)
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 5: {questions[4]}",
         reply_markup=ReplyKeyboardMarkup(answers[4], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_5
 
-def handle_question_5(update: Update, context: CallbackContext) -> int:
+async def handle_question_5(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[4].index([user_answer])
     context.user_data['answers'].append(answer_index)
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 6: {questions[5]}",
         reply_markup=ReplyKeyboardMarkup(answers[5], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_6
 
-def handle_question_6(update: Update, context: CallbackContext) -> int:
+async def handle_question_6(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[5].index([user_answer])
     context.user_data['answers'].append(answer_index)
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 7: {questions[6]}",
         reply_markup=ReplyKeyboardMarkup(answers[6], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_7
 
-def handle_question_7(update: Update, context: CallbackContext) -> int:
+async def handle_question_7(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[6].index([user_answer])
     context.user_data['answers'].append(answer_index)
-    update.message.reply_text(
+    await update.message.reply_text(
         f"📝 Вопрос 8: {questions[7]}",
         reply_markup=ReplyKeyboardMarkup(answers[7], one_time_keyboard=True, resize_keyboard=True)
     )
     return QUESTION_8
 
-def handle_question_8(update: Update, context: CallbackContext) -> int:
+async def handle_question_8(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_answer = update.message.text
     answer_index = answers[7].index([user_answer])
     context.user_data['answers'].append(answer_index)
@@ -175,52 +174,83 @@ def handle_question_8(update: Update, context: CallbackContext) -> int:
     result = calculate_result(context.user_data['answers'])
     character = characters[result]
 
-    update.message.reply_text("🔮 Анализирую ваши ответы...")
+    await update.message.reply_text("🔮 Анализирую ваши ответы...")
 
     try:
-        update.message.reply_photo(character['image'])
+        await update.message.reply_photo(character['image'])
     except Exception as e:
-        update.message.reply_text(f"🖼️ {result}")
+        await update.message.reply_text(f"🖼️ {result}")
 
-    update.message.reply_text(
+    await update.message.reply_text(
         f"🎉 Поздравляем! 🎉\n\n{character['description']}",
         reply_markup=ReplyKeyboardMarkup([['/start']], one_time_keyboard=True, resize_keyboard=True)
     )
     return ConversationHandler.END
 
+
 def calculate_result(answers):
+    # Словарь для подсчета очков каждого персонажа
     scores = {
-        "Крош": 0, "Ёжик": 0, "Бараш": 0, "Пин": 0, "Лосяш": 0,
-        "Кар-Карыч": 0, "Совунья": 0, "Нюша": 0, "Копатыч": 0
+        "Крош": 0,
+        "Ёжик": 0,
+        "Бараш": 0,
+        "Пин": 0,
+        "Лосяш": 0,
+        "Кар-Карыч": 0,
+        "Совунья": 0,
+        "Нюша": 0,
+        "Копатыч": 0
     }
 
+    # Для каждого вопроса определяем, какие ответы подходят каким персонажам
     question_weights = [
+        # Вопрос 1: Какой у вас характер?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [1], "Нюша": [2], "Копатыч": [3]},
+
+        # Вопрос 2: Что вы любите делать в свободное время?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [3], "Нюша": [0], "Копатыч": [3]},
+
+        # Вопрос 3: Как вы относитесь к приключениям?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [1], "Совунья": [1], "Нюша": [2], "Копатыч": [1]},
+
+        # Вопрос 4: Что для вас самое важное в жизни?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [1], "Кар-Карыч": [4], "Совунья": [4], "Нюша": [2], "Копатыч": [3]},
+
+        # Вопрос 5: Как вы общаетесь с друзьями?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [1], "Кар-Карыч": [4], "Совунья": [3], "Нюша": [0], "Копатыч": [4]},
+
+        # Вопрос 6: Как вы решаете проблемы?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [1], "Нюша": [2], "Копатыч": [3]},
+
+        # Вопрос 7: Что вас вдохновляет?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [1], "Кар-Карыч": [4], "Совунья": [4], "Нюша": [0], "Копатыч": [4]},
+
+        # Вопрос 8: Какой вы в критической ситуации?
         {"Крош": [0], "Ёжик": [1], "Бараш": [2], "Пин": [3], "Лосяш": [4], "Кар-Карыч": [4], "Совунья": [1], "Нюша": [2], "Копатыч": [3]}
     ]
 
+    # Подсчитываем очки
     for i, answer_index in enumerate(answers):
         for character, preferred_answers in question_weights[i].items():
             if answer_index in preferred_answers:
                 scores[character] += 1
 
-    return max(scores, key=scores.get)
+    print(f"Debug: scores = {scores}")
 
-def cancel(update: Update, context: CallbackContext) -> int:
-    update.message.reply_text(
+    # Находим персонажа с максимальным количеством очков
+    result = max(scores, key=scores.get)
+    return result
+
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text(
         'Тест отменен. Если захотите попробовать снова, напишите /start',
         reply_markup=ReplyKeyboardMarkup([['/start']], one_time_keyboard=True, resize_keyboard=True)
     )
     return ConversationHandler.END
 
-def help_command(update: Update, context: CallbackContext):
-    update.message.reply_text(
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
         "🤖 Это бот-тест 'Кто ты из Смешариков?'\n\n"
         "📝 Используйте команды:\n"
         "/start - начать тест\n"
@@ -229,48 +259,59 @@ def help_command(update: Update, context: CallbackContext):
         "🎭 Узнай, кто ты из 9 Смешариков!"
     )
 
-def list_characters(update: Update, context: CallbackContext):
+async def list_characters(update: Update, context: ContextTypes.DEFAULT_TYPE):
     characters_list = [
-        "🐰 Крош - энергичный заяц", "🦔 Ёжик - умный друг", "🐑 Бараш - творческий поэт",
-        "🐧 Пин - изобретательный пингвин", "🦌 Лосяш - учёный философ", "🐦 Кар-Карыч - мудрый ворон",
-        "🦉 Совунья - заботливая сова", "🐷 Нюша - романтичная модница", "🐻 Копатыч - трудолюбивый медведь"
+        "🐰 Крош - энергичный заяц",
+        "🦔 Ёжик - умный друг",
+        "🐑 Бараш - творческий поэт",
+        "🐧 Пин - изобретательный пингвин",
+        "🦌 Лосяш - учёный философ",
+        "🐦 Кар-Карыч - мудрый ворон",
+        "🦉 Совунья - заботливая сова",
+        "🐷 Нюша - романтичная модница",
+        "🐻 Копатыч - трудолюбивый медведь"
     ]
 
-    update.message.reply_text(
+    await update.message.reply_text(
         "🎭 Все Смешарики:\n\n" + "\n".join(characters_list) +
         "\n\n✨ Напишите /start чтобы узнать кто вы!"
     )
 
 def run_bot():
     try:
-        updater = Updater(TOKEN)
-        dispatcher = updater.dispatcher
+        print("⏳ Бот запускается...")
+
+
+        application = Application.builder().token(TOKEN).build()
 
         conv_handler = ConversationHandler(
-            entry_points=[CommandHandler('start', start)],
-            states={
-                QUESTION_1: [MessageHandler(Filters.text & ~Filters.command, handle_question_1)],
-                QUESTION_2: [MessageHandler(Filters.text & ~Filters.command, handle_question_2)],
-                QUESTION_3: [MessageHandler(Filters.text & ~Filters.command, handle_question_3)],
-                QUESTION_4: [MessageHandler(Filters.text & ~Filters.command, handle_question_4)],
-                QUESTION_5: [MessageHandler(Filters.text & ~Filters.command, handle_question_5)],
-                QUESTION_6: [MessageHandler(Filters.text & ~Filters.command, handle_question_6)],
-                QUESTION_7: [MessageHandler(Filters.text & ~Filters.command, handle_question_7)],
-                QUESTION_8: [MessageHandler(Filters.text & ~Filters.command, handle_question_8)],
-            },
-            fallbacks=[CommandHandler('cancel', cancel)]
-        )
+          entry_points=[CommandHandler('start', start)],
+          states={
+              QUESTION_1: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_1)],
+              QUESTION_2: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_2)],
+              QUESTION_3: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_3)],
+              QUESTION_4: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_4)],
+              QUESTION_5: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_5)],
+              QUESTION_6: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_6)],
+              QUESTION_7: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_7)],
+              QUESTION_8: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_8)],
+          },
+          fallbacks=[CommandHandler('cancel', cancel)]
+      )
 
-        dispatcher.add_handler(conv_handler)
-        dispatcher.add_handler(CommandHandler("help", help_command))
-        dispatcher.add_handler(CommandHandler("characters", list_characters))
+        application.add_handler(conv_handler)
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("characters", list_characters))
 
-        updater.start_polling()
-        updater.idle()
+        print("✅ Бот запущен и работает!")
+        print("🎭 Теперь доступно 9 Смешариков!")
+        print("📱 Тестируйте бота в Telegram")
+        print("⏹️  Чтобы остановить, прервите выполнение ячейки")
+
+        application.run_polling()
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        print(f"❌ Ошибка: {e}")
 
 if __name__ == "__main__":
     run_bot()
