@@ -282,23 +282,22 @@ def run_bot():
     try:
         print("⏳ Бот запускается...")
 
-
         application = Application.builder().token(TOKEN).build()
 
         conv_handler = ConversationHandler(
-          entry_points=[CommandHandler('start', start)],
-          states={
-              QUESTION_1: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_1)],
-              QUESTION_2: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_2)],
-              QUESTION_3: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_3)],
-              QUESTION_4: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_4)],
-              QUESTION_5: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_5)],
-              QUESTION_6: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_6)],
-              QUESTION_7: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_7)],
-              QUESTION_8: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_8)],
-          },
-          fallbacks=[CommandHandler('cancel', cancel)]
-      )
+            entry_points=[CommandHandler('start', start)],
+            states={
+                QUESTION_1: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_1)],
+                QUESTION_2: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_2)],
+                QUESTION_3: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_3)],
+                QUESTION_4: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_4)],
+                QUESTION_5: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_5)],
+                QUESTION_6: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_6)],
+                QUESTION_7: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_7)],
+                QUESTION_8: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_question_8)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)]
+        )
 
         application.add_handler(conv_handler)
         application.add_handler(CommandHandler("help", help_command))
@@ -307,12 +306,13 @@ def run_bot():
         print("✅ Бот запущен и работает!")
         print("🎭 Теперь доступно 9 Смешариков!")
         print("📱 Тестируйте бота в Telegram")
-        print("⏹️  Чтобы остановить, прервите выполнение ячейки")
 
         application.run_polling()
 
     except Exception as e:
         print(f"❌ Ошибка: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     run_bot()
