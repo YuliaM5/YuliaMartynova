@@ -1,12 +1,9 @@
 import os
 
-from dotenv import load_dotenv
-
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
 
 
-load_dotenv()
 
 TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
